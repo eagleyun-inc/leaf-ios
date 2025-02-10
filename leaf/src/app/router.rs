@@ -503,7 +503,7 @@ impl Router {
         Ok(())
     }
 
-    pub async fn pick_route<'a>(&'a self, sess: &'a Session) -> Result<&'a String> {
+    pub async fn pick_route<'a>(&'a self, sess: & mut Session) -> Result<&'a String> {
         debug!("picking route for {}:{}", &sess.network, &sess.destination);
         for rule in &self.rules {
             if rule.apply(sess) {
@@ -533,6 +533,7 @@ impl Router {
                 );
                 for rule in &self.rules {
                     if rule.apply(&new_sess) {
+                        sess.destination = SocksAddr::from((ips[0], sess.destination.port()));
                         return Ok(&rule.target);
                     }
                 }

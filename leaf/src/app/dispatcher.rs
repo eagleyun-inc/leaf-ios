@@ -124,7 +124,7 @@ impl Dispatcher {
 
         let outbound = {
             let router = self.router.read().await;
-            match router.pick_route(&sess).await {
+            match router.pick_route(&mut sess).await {
                 Ok(tag) => {
                     debug!(
                         "picked route [{}] for {} -> {}",
@@ -259,7 +259,7 @@ impl Dispatcher {
         debug!("dispatching {}:{}", &sess.network, &sess.destination);
         let outbound = {
             let router = self.router.read().await;
-            match router.pick_route(&sess).await {
+            match router.pick_route(&mut sess).await {
                 Ok(tag) => {
                     debug!(
                         "picked route [{}] for {} -> {}",
