@@ -1,5 +1,3 @@
-use std::fs::OpenOptions;
-use std::path::Path;
 use std::sync::RwLock;
 
 use anyhow::Result;
@@ -8,6 +6,9 @@ use tracing_subscriber::{
     filter::LevelFilter, fmt, layer::Layered, prelude::*, registry::Registry, reload,
     reload::Handle,
 };
+use rolling_file::{BasicRollingFileAppender, RollingConditionBasic};
+const MAX_LOG_FILES: usize = 2; // 只保留最新的 2 个日志文件
+const MAX_LOG_SIZE: u64 = 50 * 1024 * 1024; // 50MB
 
 use crate::config;
 
@@ -82,9 +83,14 @@ fn get_writer(config: &config::Log) -> Result<(WriterLayer, WorkerGuard)> {
             }
         }
         config::log::Output::FILE => {
-            let p = Path::new(&config.output_file);
-            let writer = OpenOptions::new().append(true).create(true).open(p)?;
-            let (writer, writer_guard) = tracing_appender::non_blocking(writer);
+            let opt  = RollingConditionBasic::new();
+            let opt = opt.max_size(MAX_LOG_SIZE);
+            let rolling_appender = BasicRollingFileAppender::new(
+                &config.output_file,
+                opt, 
+                MAX_LOG_FILES,
+            ).unwrap();
+            let (writer, writer_guard) = tracing_appender::non_blocking(rolling_appender);
             let writer = fmt::Layer::default().with_ansi(false).with_writer(writer);
             (writer, writer_guard)
         }
