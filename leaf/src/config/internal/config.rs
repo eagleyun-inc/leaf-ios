@@ -250,6 +250,9 @@ pub struct Log {
     pub output: ::protobuf::EnumOrUnknown<log::Output>,
     // @@protoc_insertion_point(field:Log.output_file)
     pub output_file: ::std::string::String,
+
+    pub output_size: i32,
+    pub output_count: i32,
     // special fields
     // @@protoc_insertion_point(special_field:Log.special_fields)
     pub special_fields: ::protobuf::SpecialFields,

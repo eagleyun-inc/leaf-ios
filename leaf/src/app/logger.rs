@@ -83,12 +83,16 @@ fn get_writer(config: &config::Log) -> Result<(WriterLayer, WorkerGuard)> {
             }
         }
         config::log::Output::FILE => {
+            let mut count = 0;
+            if config.output_count > 1 {
+                count = config.output_count - 1
+            }
             let opt  = RollingConditionBasic::new();
-            let opt = opt.max_size(MAX_LOG_SIZE);
+            let opt = opt.max_size(config.output_size);
             let rolling_appender = BasicRollingFileAppender::new(
                 &config.output_file,
                 opt, 
-                MAX_LOG_FILES,
+                count,
             ).unwrap();
             let (writer, writer_guard) = tracing_appender::non_blocking(rolling_appender);
             let writer = fmt::Layer::default().with_ansi(false).with_writer(writer);
