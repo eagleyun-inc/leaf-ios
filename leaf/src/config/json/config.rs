@@ -9,6 +9,11 @@ use serde_json::value::RawValue;
 
 use crate::config::{external_rule, internal};
 
+
+const MAX_LOG_FILES: usize = 2; // 只保留最新的 2 个日志文件
+const MAX_LOG_SIZE: u64 = 50 * 1024 * 1024; // 50MB
+
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Dns {
     pub servers: Option<Vec<String>>,
@@ -19,6 +24,8 @@ pub struct Dns {
 pub struct Log {
     pub level: Option<String>,
     pub output: Option<String>,
+    pub file_size: Option<i32>,
+    pub file_count: Option<i32>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -307,6 +314,16 @@ pub fn to_internal(json: &mut Config) -> Result<internal::Config> {
                     log.output_file = ext_output.clone();
                 }
             }
+        }
+        if let Some(file_size) = &ext_log.file_size {
+            log.output_size = file_size.clone();
+        }else{
+            log.output_size = MAX_LOG_SIZE
+        }
+        if let Some(file_count) = &ext_log.file_size {
+            log.output_count = file_count.clone();
+        }else{
+            log.output_size = MAX_LOG_FILES
         }
     }
 

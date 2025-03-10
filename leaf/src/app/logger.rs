@@ -7,8 +7,6 @@ use tracing_subscriber::{
     reload::Handle,
 };
 use rolling_file::{BasicRollingFileAppender, RollingConditionBasic};
-const MAX_LOG_FILES: usize = 2; // 只保留最新的 2 个日志文件
-const MAX_LOG_SIZE: u64 = 50 * 1024 * 1024; // 50MB
 
 use crate::config;
 
